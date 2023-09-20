@@ -8,10 +8,11 @@ using GLMakie, Rotations, IGLWrap_jll  # to force loading G4Vis extension
 const detGDML = "$(@__DIR__)/../TileTB_2B1EB_nobeamline.gdml"
 
 #---Particle Gun initialization--------------------------------------------------------------------
-particlegun = G4JLGunGenerator(particle = "e-", 
+primaryAngle = 76*deg  # set TB angle as on ATLAS reference paper
+particlegun = G4JLGunGenerator(particle = "pi-", 
                                energy = 1GeV, 
-                               direction = G4ThreeVector(1,0,0), 
-                               position = G4ThreeVector(0,0,0))  # temporary position, will update once the detector is constructed
+                               direction = G4ThreeVector(sin(primaryAngle),0,cos(primaryAngle)), 
+                               position = G4ThreeVector(2298.,0.,0.))
 
 #---Create the Application-------------------------------------------------------------------------
 app = G4JLApplication(detector = G4JLDetectorGDML(detGDML),       # detector defined with a GDML file
@@ -30,5 +31,7 @@ app = G4JLApplication(detector = G4JLDetectorGDML(detGDML),       # detector def
 configure(app)
 initialize(app)
 
+#lv = GetWorldVolume() |> GetLogicalVolume
+#world = GetDaughter(lv, 0)
 world = GetWorldVolume()
-draw(world, maxlevel=5)            
+draw(world, maxlevel=6)

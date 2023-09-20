@@ -456,7 +456,7 @@
     <box lunit="mm" name="S10x46c59960" x="10" y="105" z="100"/>
     <box lunit="mm" name="S20x46c5a300" x="20" y="80" z="55"/>
     <box lunit="mm" name="S30x46c5ae60" x="20" y="80" z="55"/>
-    <box lunit="mm" name="CTB0x464b4ae0" x="1200000" y="10000" z="20000"/>
+    <box lunit="mm" name="CTB0x464b4ae0" x="10000" y="10000" z="10000"/>
   </solids>
 
   <structure>
