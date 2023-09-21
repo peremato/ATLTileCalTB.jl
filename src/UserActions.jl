@@ -32,8 +32,8 @@ end
 function beginrun!(run::G4Run, app::G4JLApplication)::Nothing
     data = getSIMdata(app)
     #---init run histograms
-    data.edepSumHisto = Hist1D(;bins=200.:5.:500.)
-    data.sdepSumHisto = Hist1D(;bins=200.:5.:500.)
+    data.edepSumHisto = Hist1D(;bins=0.:2.:100.)
+    data.sdepSumHisto = Hist1D(;bins=0.:1.:50.)
     nothing
 end
 #---End Run Action---------------------------------------------------------------------------------

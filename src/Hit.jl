@@ -22,7 +22,7 @@ end
 
 function Base.setindex!(array::FSA, data::Float64, time::Float64)
     if time < frame_time_window
-        indx = ceil(Int, time/frame_bin_time) + 1
+        indx = ceil(Int, time/frame_bin_time)
         array[indx] = data
     else
         throw("Time time is above the total time window")

@@ -156,9 +156,9 @@ module ATLTileCalTBGeometry
         elseif modul == EXTENDED
             index += 2 * long_module_no_cells
         elseif modul == EXTENDED_C10
-            return fNoOfCells - 1
+            return numberOfCells - 1
         elseif modul == EXTENDED_D4
-            return fNoOfCells
+            return numberOfCells
         end
 
         # Row indices start with 1 in ATLAS convention

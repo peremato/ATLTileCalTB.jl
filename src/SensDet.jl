@@ -51,12 +51,12 @@ function sd_processHits!(step::G4Step, ::G4TouchableHistory, data::ATLTileCalTBS
     # Apply U-shape and signal separation (up-down)
     sdep_up = 0
     sdep_down = 0
-    scintillator_copy_no = step |> GetPreStepPoint |> GetTouchable |> GetCopyNumber
-    if cell.module == EXTENDED_C10
+    scintillator_copy_no = (step |> GetPreStepPoint |> GetTouchable |> GetCopyNumber) + 1 # Julia index start with 1
+    if cell.modul == EXTENDED_C10
         # add 6 missing rows for cell C10
         scintillator_copy_no += 6
     end
-    if cell.module == EXTENDED_D4
+    if cell.modul == EXTENDED_D4
         # add 9 missing rows for cell D4
         scintillator_copy_no += 9
     end
@@ -67,7 +67,7 @@ function sd_processHits!(step::G4Step, ::G4TouchableHistory, data::ATLTileCalTBS
     hit = data.hitsCollection[cellIndx]
 
     # Add hit energy 
-    hit.edep += edep
+    hit.fEdep += edep
     hit.fSdepUp[time] = sdep_up
     hit.fSdepDown[time] = sdep_down
 
@@ -314,7 +314,7 @@ const size2 = size / 2
 
 function Tile_1D_profileRescaled(row, x, y, PMT, cell)
     PMT == 1 &&  (x *= -1)
-    if row < 0 || row >= 11
+    if row < 1 || row > 11
         G4JL_println("-->ERROR in tile row $row")
         return 0.
     end
@@ -341,7 +341,7 @@ function Tile_1D_profileRescaled(row, x, y, PMT, cell)
     elseif cell.modul == EXTENDED || cell.modul == EXTENDED_C10 || cell.modul == EXTENDED_D4
         if cell.row == A
             amplitude = EBC_A_TilePMT[index]
-        elseif cell.row == B || ell.row == C
+        elseif cell.row == B || cell.row == C
             amplitude = EBC_BC_TilePMT[index]
         elseif cell.row == D
             amplitude = EBC_D_TilePMT[index]
