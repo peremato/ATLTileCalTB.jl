@@ -1,7 +1,11 @@
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+FHist = "68837c9b-b678-4cd5-9925-8a54edc8f695"
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 Geant4 = "559df036-b7a0-42fd-85df-7d5dd9d70f44"
 GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
 IGLWrap_jll = "283677c1-8365-580c-84e5-ef4b5d190868"
+PoissonRandom = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Rotations = "6038ab10-8711-5258-84ad-4b1120ba62dc"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
