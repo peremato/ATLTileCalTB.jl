@@ -13,16 +13,36 @@ mutable struct ATLTileCalTBSimData <: G4JLSimulationData
     fAux::SizedVector{nAuxData, Float64}
     fEdepVector::SizedVector{numberOfCells, Float64}
     fSdepVector::SizedVector{numberOfCells, Float64}
-    #---Run data
-    sdepSumHisto::Hist1D64
-    edepSumHisto::Hist1D64
+    #---Run data (filled every event by the endevent action)
+    eleak::Hist1D64
+    ecal::Hist1D64
+    sdepSum::Hist1D64
+    edepSum::Hist1D64
+    sdep::Hist1D64
+    edep::Hist1D64
+    pdgid::Hist1D64
+    ebeam::Hist1D64
     ATLTileCalTBSimData() = new(zeros(nAuxData), 
                                 zeros(numberOfCells),
-                                zeros(numberOfCells))
+                                zeros(numberOfCells),
+                                Hist1D(;bins=0.:400.:20000.), 
+                                Hist1D(;bins=0.:400.:20000.), 
+                                Hist1D(;bins=0.:2.:100.),
+                                Hist1D(;bins=0.:20.:1000.),
+                                Hist1D(;bins=0.:1.:50.), 
+                                Hist1D(;bins=0.:1.:50.), 
+                                Hist1D(;bins=100.:40.:300.),
+                                Hist1D(;bins=0.:4000.:20000.))
 end
 function add!(x::ATLTileCalTBSimData, y::ATLTileCalTBSimData)
-    x.sdepSumHisto += y.sdepSumHisto
-    x.edepSumHisto += y.edepSumHisto
+    x.eleak += y.eleak
+    x.ecal += y.ecal
+    x.sdepSum += y.sdepSum
+    x.edepSum += y.edepSum
+    x.sdep += y.sdep
+    x.edep += y.edep
+    x.pdgid += y.pdgid
+    x.ebeam += y.ebeam
 end
 #--------------------------------------------------------------------------------------------------
 #---User Actions-----------------------------------------------------------------------------------
@@ -34,8 +54,14 @@ function beginrun!(run::G4Run, app::G4JLApplication)::Nothing
     runmgr = G4RunManager!GetRunManager()
     SetPrintProgress(runmgr,100) 
     #---init run histograms
-    data.edepSumHisto = Hist1D(;bins=0.:2.:100.)
-    data.sdepSumHisto = Hist1D(;bins=0.:1.:50.)
+    empty!(data.eleak)
+    empty!(data.ecal)
+    empty!(data.sdepSum)
+    empty!(data.edepSum)
+    empty!(data.sdep)
+    empty!(data.edep)
+    empty!(data.pdgid)
+    empty!(data.ebeam)
     nothing
 end
 #---End Run Action---------------------------------------------------------------------------------
@@ -101,6 +127,7 @@ function endevent!(evt::G4Event, app::G4JLApplication)
  
     data   = getSIMdata(app)
     sddata = getSDdata(app, "Calo_SD")                   # Get the hits from sensitive detector data
+    gun = app.generator.data.gun
 
     for n in 1:numberOfCells
         data.fEdepVector[n] = sddata.hitsCollection[n].fEdep
@@ -108,8 +135,14 @@ function endevent!(evt::G4Event, app::G4JLApplication)
     end
 
     #  Add sums to Ntuple
-    push!(data.edepSumHisto, sum(data.fEdepVector))
-    push!(data.sdepSumHisto, sum(data.fSdepVector))
+    push!(data.eleak, data.fAux[1])
+    push!(data.ecal, data.fAux[2])
+    push!(data.edepSum, sum(data.fEdepVector))
+    push!(data.sdepSum, sum(data.fSdepVector))
+    push!.(data.edep, data.fEdepVector)
+    push!.(data.sdep, data.fSdepVector)
+    push!(data.pdgid, gun |> GetParticleDefinition |> GetPDGEncoding)
+    push!(data.ebeam, gun |> GetParticleEnergy)
     return
 end
 
@@ -130,7 +163,7 @@ function stepping!(step::G4Step, app::G4JLApplication)::Nothing
     #volname = track |> GetTouchableHandle |> GetVolume |> GetName |> String
     volname = step |> GetPreStepPoint |> GetTouchable |> GetVolume |> GetName |> String
     if volname != "CALO::CALO" || volname != "Barrel"
-        data.fAux[1] += step |> GetTotalEnergyDeposit 
+        data.fAux[2] += step |> GetTotalEnergyDeposit 
     end
     return
 end
