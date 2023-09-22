@@ -16,8 +16,8 @@ const detGDML = "$(@__DIR__)/../TileTB_2B1EB_nobeamline.gdml"
 
 #---Particle Gun initialization--------------------------------------------------------------------
 const primaryAngle = 76*deg  # set TB angle as on ATLAS reference paper
-particlegun = G4JLGunGenerator(particle = "pi-", 
-                               energy = 1GeV, 
+particlegun = G4JLGunGenerator(particle = "pi+", 
+                               energy = 18GeV, 
                                direction = G4ThreeVector(sin(primaryAngle),0,cos(primaryAngle)), 
                                position = G4ThreeVector(2298.,0.,0.))
 
@@ -42,9 +42,10 @@ app = G4JLApplication(detector = G4JLDetectorGDML(detGDML),           # detector
                       endeventaction_method=endevent!,                # end-event action (fill histogram per event data)
                       sdetectors = ["Tile::Scintillator+" => calo_SD] # mapping of LVs to SDs (+ means multiple LVs with same name)
                      )
-              
+
 configure(app)
 initialize(app)
+
 
 #---Draw the detector------------------------------------------------------------------------------
 function draw_detector()
@@ -68,4 +69,4 @@ end
 #draw_detector()
 
 beamOn(app, 1000)
-do_plot(app.simdata[1])
+#do_plot(app.simdata[1])

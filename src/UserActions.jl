@@ -31,6 +31,8 @@ end
 #---Begin Run Action-------------------------------------------------------------------------------
 function beginrun!(run::G4Run, app::G4JLApplication)::Nothing
     data = getSIMdata(app)
+    runmgr = G4RunManager!GetRunManager()
+    SetPrintProgress(runmgr,100) 
     #---init run histograms
     data.edepSumHisto = Hist1D(;bins=0.:2.:100.)
     data.sdepSumHisto = Hist1D(;bins=0.:1.:50.)
@@ -89,8 +91,8 @@ function endevent!(evt::G4Event, app::G4JLApplication)
         # Apply electronic noise
         #sdep_up += G4RandGauss::shoot(0., ATLTileCalTBConstants::signal_noise_sigma);
         #sdep_down += G4RandGauss::shoot(0., ATLTileCalTBConstants::signal_noise_sigma);
-        sdep_up += randn()*signal_noise_sigma
-        sdep_down += randn()*signal_noise_sigma
+        sdep_up += randn() * signal_noise_sigma
+        sdep_down += randn() * signal_noise_sigma
 
         # Return sum if signal is larger than 2 * noise
         sdep_sum = sdep_up + sdep_down

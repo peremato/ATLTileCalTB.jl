@@ -3,8 +3,6 @@
 using .ATLTileCalTBConstants
 using .ATLTileCalTBGeometry
 
-using PoissonRandom   # Temporary
-
 #--------------------------------------------------------------------------------------------------
 #---Define Sensitive Detector----------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------------
@@ -38,8 +36,7 @@ function sd_processHits!(step::G4Step, ::G4TouchableHistory, data::ATLTileCalTBS
     sdep = BirkLaw(step)
 
     # Convert energy to photoelectrons
-    sdep = pois_rand(photoelectrons_per_energy * sdep)
-    #sdep = G4Poisson(photoelectrons_per_energy * sdep)
+    sdep = G4Poisson(photoelectrons_per_energy * sdep)
 
     # get local coordinates of PreStepPoint in scintillator
     prestepPos = step |> GetPreStepPoint |> GetPosition
