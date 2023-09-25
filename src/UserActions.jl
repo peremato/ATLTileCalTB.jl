@@ -10,9 +10,10 @@ const Hist1D64 = Hist1D{Float64, Tuple{StepRangeLen{Float64, Base.TwicePrecision
 #---ATLTileCalTBSimData----------------------------------------------------------------------------
 mutable struct ATLTileCalTBSimData <: G4JLSimulationData
     #---Event data
-    fAux::SizedVector{nAuxData, Float64}
-    fEdepVector::SizedVector{numberOfCells, Float64}
-    fSdepVector::SizedVector{numberOfCells, Float64}
+    fLeak::Float64
+    fEcal::Float64
+    fEdepVector::Vector{Float64}
+    fSdepVector::Vector{Float64}
     #---Run data (filled every event by the endevent action)
     eleak::Hist1D64
     ecal::Hist1D64
@@ -22,7 +23,7 @@ mutable struct ATLTileCalTBSimData <: G4JLSimulationData
     edep::Hist1D64
     pdgid::Hist1D64
     ebeam::Hist1D64
-    ATLTileCalTBSimData() = new(zeros(nAuxData), 
+    ATLTileCalTBSimData() = new(0.,0., 
                                 zeros(numberOfCells),
                                 zeros(numberOfCells),
                                 Hist1D(;bins=0.:400.:20000.), 
@@ -81,19 +82,22 @@ end
 #---Begin Event Action-----------------------------------------------------------------------------
 function beginevent!(evt::G4Event, app::G4JLApplication)::Nothing
     data = getSIMdata(app)
-    fill!(data.fAux, 0.)
+    data.fLeak = 0.
+    data.fEcal = 0.
     fill!(data.fEdepVector, 0.)
     fill!(data.fSdepVector, 0.)
     return
 end
 
 #---End Event Action-------------------------------------------------------------------------------
+const sdep_up_v = zeros(frames)
+const sdep_down_v = zeros(frames)
+
 function endevent!(evt::G4Event, app::G4JLApplication)
     # Function to convolute signal for PMT response
     # From https://gitlab.cern.ch/allpix-squared/allpix-squared/-/blob/86fe21ad37d353e36a509a0827562ab7fadd5104/src/modules/CSADigitizer/CSADigitizerModule.cpp#L271-L283
-    function convolutePMT(sdep::FSA)
+    function convolutePMT!(outvec::Vector{Float64}, sdep::Vector{Float64})
         pmt_response_size = length(pmt_response)
-        outvec = zeros(FSA)
         for k in 1:frames
             outsum = 0.
             jmax = k > pmt_response_size ? pmt_response_size : k
@@ -102,13 +106,13 @@ function endevent!(evt::G4Event, app::G4JLApplication)
             end
             outvec[k] = outsum
         end
-        return outvec
+        return
     end
     # Function to get sdep from hit
     function getSdep(hit::ATLTileCalTBHit)::Float64
         # PMT response
-        sdep_up_v = convolutePMT(hit.fSdepUp)
-        sdep_down_v = convolutePMT(hit.fSdepDown)
+        convolutePMT!(sdep_up_v, hit.fSdepUp)
+        convolutePMT!(sdep_down_v, hit.fSdepDown)
 
         # Use maximum as signal
         sdep_up = maximum(sdep_up_v)
@@ -135,8 +139,8 @@ function endevent!(evt::G4Event, app::G4JLApplication)
     end
 
     #  Add sums to Ntuple
-    push!(data.eleak, data.fAux[1])
-    push!(data.ecal, data.fAux[2])
+    push!(data.eleak, data.fLeak)
+    push!(data.ecal, data.fEcal)
     push!(data.edepSum, sum(data.fEdepVector))
     push!(data.sdepSum, sum(data.fSdepVector))
     push!.(data.edep, data.fEdepVector)
@@ -154,7 +158,7 @@ function stepping!(step::G4Step, app::G4JLApplication)::Nothing
 
     # Collect out of world leakage
     if track |> GetNextVolume == C_NULL
-        data.fAux[1] += track |> GetKineticEnergy 
+        data.fLeak += track |> GetKineticEnergy 
     end
 
     # Collect calo energy deposition (everything but what goes into CALO::CALO and Barrel) 
@@ -163,7 +167,7 @@ function stepping!(step::G4Step, app::G4JLApplication)::Nothing
     #volname = track |> GetTouchableHandle |> GetVolume |> GetName |> String
     volname = step |> GetPreStepPoint |> GetTouchable |> GetVolume |> GetName |> String
     if volname != "CALO::CALO" || volname != "Barrel"
-        data.fAux[2] += step |> GetTotalEnergyDeposit 
+        data.fEcal += step |> GetTotalEnergyDeposit 
     end
     return
 end

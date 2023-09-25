@@ -1,8 +1,7 @@
+#using Profile
 using Revise
 using Geant4
 using Geant4.SystemOfUnits
-
-#using GLMakie, Rotations, IGLWrap_jll  # to force loading G4Vis extension
 using FHist, Plots
 
 include(joinpath(@__DIR__, "Parameters.jl"))
@@ -49,7 +48,6 @@ app = G4JLApplication(detector     = detconstructor,                  # detector
 configure(app)
 initialize(app)
 
-
 #---Draw the detector------------------------------------------------------------------------------
 function draw_detector()
     fig = Figure(resolution=(1280, 720))
@@ -62,7 +60,7 @@ function draw_detector()
 end
 
 #---Plot Simulation data----------------------------------------------------------------------------
-function do_plot(data::ATLTileCalTBSimData)
+function do_plot(data::ATLTileCalTBSimData; out=nothing)
     (;eleak, ecal, sdepSum, edepSum, sdep, edep, pdgid, ebeam) = data
     lay = @layout [3,3]
     plot(layout=lay, show=true, size=(1400,1000))
@@ -74,8 +72,15 @@ function do_plot(data::ATLTileCalTBSimData)
     plot!(subplot=6, sdep, title="Energy photoelectrons", xlabel="# photoelectors", show=true)
     plot!(subplot=7, pdgid, title="PDG of particle", xlabel="MeV", show=true)
     plot!(subplot=8, ebeam, title="Energy of particle", xlabel="Mev", show=true)
+    if !isnothing(out)
+        savefig(out)
+    end 
 end
-#draw_detector()
+
+#beamOn(app, 1)
 
 beamOn(app, 1000)
-do_plot(app.simdata[1])
+do_plot(app.simdata[1], out="pi+18GeV1000.png")
+
+#Profile.clear_malloc_data()
+#beamOn(app, 10)

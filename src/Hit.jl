@@ -1,26 +1,24 @@
-
 using StaticArrays
+
 using .ATLTileCalTBConstants
 using .ATLTileCalTBGeometry
-
-const FSA = SizedVector{frames,Float64}
 
 #---ATLTileCalTBHit--------------------------------------------------------------------------------
 mutable struct ATLTileCalTBHit
     fEdep::Float64
     # Vectors containing the binned signal
-    fSdepUp::FSA
-    fSdepDown::FSA
-    ATLTileCalTBHit() = new(0., zeros(FSA), zeros(FSA))
+    fSdepUp::Vector{Float64}
+    fSdepDown::Vector{Float64}
+    ATLTileCalTBHit() = new(0., zeros(frames), zeros(frames))
 end
 
 function clean!(h::ATLTileCalTBHit)
     h.fEdep = 0.
-    h.fSdepUp = zeros(FSA)
-    h.fSdepDown = zeros(FSA)
+    fill!(h.fSdepUp, 0.)
+    fill!(h.fSdepDown, 0.)
 end
 
-function Base.setindex!(array::FSA, data::Float64, time::Float64)
+function Base.setindex!(array::Vector{Float64}, data::Float64, time::Float64)
     if time < frame_time_window
         indx = ceil(Int, time/frame_bin_time)
         array[indx] = data

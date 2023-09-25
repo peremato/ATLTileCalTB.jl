@@ -36,7 +36,7 @@ function sd_processHits!(step::G4Step, ::G4TouchableHistory, data::ATLTileCalTBS
     sdep = BirkLaw(step)
 
     # Convert energy to photoelectrons
-    sdep = G4Poisson(photoelectrons_per_energy * sdep)
+    sdep = G4Poisson(photoelectrons_per_energy * sdep) |> Float64
 
     # get local coordinates of PreStepPoint in scintillator
     prestepPos = step |> GetPreStepPoint |> GetPosition
@@ -46,8 +46,6 @@ function sd_processHits!(step::G4Step, ::G4TouchableHistory, data::ATLTileCalTBS
     zLocal = z(localCoord)
     
     # Apply U-shape and signal separation (up-down)
-    sdep_up = 0
-    sdep_down = 0
     scintillator_copy_no = (step |> GetPreStepPoint |> GetTouchable |> GetCopyNumber) + 1 # Julia index start with 1
     if cell.modul == EXTENDED_C10
         # add 6 missing rows for cell C10
@@ -76,7 +74,7 @@ end
 # athena/TileCalorimeter/TileG4/TileGeoG4SD/src/TileGeoG4SDCalc.cc
 # as on June 2022.
 # 
-function BirkLaw(step::G4Step)
+function BirkLaw(step::G4Step)::Float64
     # ----------------COMMENT FROM ATHENA---------------
     #  *** apply BIRK's saturation law to energy deposition ***
     #  *** only organic scintillators implemented in this version MODEL=1
