@@ -82,5 +82,11 @@ end
 beamOn(app, 1000)
 do_plot(app.simdata[1], out="pi+18GeV1000.png")
 
-#Profile.clear_malloc_data()
-#beamOn(app, 10)
+# Run with diffrent particles and energies
+
+#SetParticleEnergy(particlegun, 10GeV)
+#SetParticleByName(particlegun, "mu+")
+#beamOn(app, 1000)
+#do_plot(app.simdata[1], out="mu+10GeV1000.png")
+
+
