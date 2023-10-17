@@ -33,7 +33,7 @@ do_plot(app.simdata[1], out="mu+10GeV1000.png")
 
 ```
 ## Visualizing the Detector and Event
-The script `src/ATLTileCalTBVis.jl` provides a minimalistic program for visualizing the geometry of the detector and display of one event.
+The script `src/ATLTileCalTBVis.jl` provides a minimalistic program for visualizing the geometry of the detector and display of one event. Some visualization settings can be set with the file VisSettings.jl. The full list of settings are in `Geant4.jl/ext/G4Vis/settings.jl`.
 ![](pi+18GeVEvent.png)
 
 ## Performance
@@ -43,13 +43,14 @@ Run benchmark to comparing execution time between the Julia and the C++ version.
 
 |          |   C++    | Julia   |
 |----------| -------- | ------- |
-| time (s) | 143      | 158     |
+| time (s) | 143      | 104     |
 
-- The somehow lower performance is due to the delayed GC of allocated memory during the execution.
+- No clear why Julia should be much laster than C++
+
 
 ## Current problems/issues
 ### Memory allocations
-- Currently each callback (stepping action and/or process hit) takes about 113 bytes in 2.5 allocations. Need to understand the origin of these.
-- Garbage collection is disabled while the G4 working threads are working, so even with small allocations they are accumulated and the program may fail after several thousands of events.
+- Currently each callback (stepping action and/or process hit) takes about 113 bytes with 2.5 allocations. Need to understand the origin of these.
+
 ### Event display
 - Hits and steps inside the calorimeter are not drawn with the full color. The color of the hit (yellow) is added to the color of the calorimeter.
