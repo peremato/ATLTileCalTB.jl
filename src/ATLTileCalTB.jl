@@ -79,8 +79,8 @@ end
 
 #beamOn(app, 1)
 
-beamOn(app, 1000)
-do_plot(app.simdata[1], out="pi+18GeV1000.png")
+beamOn(app, 10000)
+do_plot(app.simdata[1], out="pi+18GeV10000.png")
 
 # Run with diffrent particles and energies
 
