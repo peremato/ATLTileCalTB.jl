@@ -18,18 +18,19 @@ particlegun = G4JLGunGenerator(particle = "pi+",
                                direction = G4ThreeVector(sin(primaryAngle),0,cos(primaryAngle)), 
                                position = G4ThreeVector(2298.,0.,0.))
 #---Event Display----------------------------------------------------------------------------------
-display   = G4JLEventDisplay(joinpath(@__DIR__, "../VisSettings.jl"))
+evtdisplay = G4JLEventDisplay(joinpath(@__DIR__, "../VisSettings.jl"))
 
 #---Create the Application-------------------------------------------------------------------------
 app = G4JLApplication(detector     = detector,                  # detector defined with a GDML file
                       generator    = particlegun,               # primary generator to instantiate
                       physics_type = FTFP_BERT,                 # what physics list to instantiate
-                      evtdisplay   = display                    # event display
+                      evtdisplay   = evtdisplay                 # event display
                      )
 
 configure(app)
 initialize(app)
+display(evtdisplay.figure)
 
-#---Event Display is anow ready display events-----------------------------------------------------
+#---Event Display is anow ready display events---------------------------------------------------
 beamOn(app, 1)
 
